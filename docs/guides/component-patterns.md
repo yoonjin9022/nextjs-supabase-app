@@ -18,12 +18,7 @@ export function UserAvatar({ user, size = 'md' }) {
 }
 
 export function UserStatus({ isOnline }) {
-  return (
-    <div className={cn(
-      "h-3 w-3 rounded-full",
-      isOnline ? "bg-green-500" : "bg-gray-400"
-    )} />
-  )
+  return <div className={cn('h-3 w-3 rounded-full', isOnline ? 'bg-green-500' : 'bg-gray-400')} />
 }
 
 // ❌ 여러 책임이 섞인 컴포넌트
@@ -92,7 +87,7 @@ export default async function UserListPage() {
 async function UserList({ users }) {
   return (
     <div className="grid gap-4">
-      {users.map(user => (
+      {users.map((user) => (
         <UserCard key={user.id} user={user} />
       ))}
     </div>
@@ -129,7 +124,7 @@ export function UserSearchForm() {
 export function UserForm() {
   const [state, formAction, isPending] = useActionState(updateUserAction, {
     success: false,
-    message: ''
+    message: '',
   })
 
   return (
@@ -164,7 +159,7 @@ export default async function ProductPage({ params }) {
 }
 
 // 클라이언트 컴포넌트는 별도 파일로 분리
-'use client'
+;('use client')
 export function ProductInteractions({ productId }) {
   const [liked, setLiked] = useState(false)
   // 상호작용 로직...
@@ -262,14 +257,17 @@ export function DataFetcher<T>({ url, children }: DataFetcherProps<T>) {
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    fetchData(url).then(setData).catch(setError).finally(() => setLoading(false))
+    fetchData(url)
+      .then(setData)
+      .catch(setError)
+      .finally(() => setLoading(false))
   }, [url])
 
   return children(data, loading, error)
 }
 
 // 사용법
-<DataFetcher<User[]> url="/api/users">
+;<DataFetcher<User[]> url="/api/users">
   {(users, loading, error) => {
     if (loading) return <Spinner />
     if (error) return <ErrorMessage error={error} />
@@ -286,27 +284,24 @@ export function DataFetcher<T>({ url, children }: DataFetcherProps<T>) {
 import { cva, type VariantProps } from 'class-variance-authority'
 
 // ✅ CVA로 변형 정의
-const cardVariants = cva(
-  'rounded-lg border bg-card text-card-foreground shadow-sm',
-  {
-    variants: {
-      variant: {
-        default: 'border-border',
-        outline: 'border-2',
-        ghost: 'border-transparent shadow-none',
-      },
-      size: {
-        sm: 'p-4',
-        md: 'p-6',
-        lg: 'p-8',
-      },
+const cardVariants = cva('rounded-lg border bg-card text-card-foreground shadow-sm', {
+  variants: {
+    variant: {
+      default: 'border-border',
+      outline: 'border-2',
+      ghost: 'border-transparent shadow-none',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'md',
+    size: {
+      sm: 'p-4',
+      md: 'p-6',
+      lg: 'p-8',
     },
-  }
-)
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'md',
+  },
+})
 
 interface CardProps extends VariantProps<typeof cardVariants> {
   children: React.ReactNode
@@ -337,7 +332,7 @@ export function Accordion({ children, type = 'single' }) {
   const [openItems, setOpenItems] = useState<Set<string>>(new Set())
 
   const toggle = (value: string) => {
-    setOpenItems(prev => {
+    setOpenItems((prev) => {
       const newSet = new Set(prev)
       if (newSet.has(value)) {
         newSet.delete(value)
@@ -379,7 +374,7 @@ export function AccordionContent({ children, value }) {
 }
 
 // 사용법
-<Accordion type="multiple">
+;<Accordion type="multiple">
   <AccordionItem value="item-1">
     <AccordionTrigger value="item-1">질문 1</AccordionTrigger>
     <AccordionContent value="item-1">답변 1</AccordionContent>
@@ -397,27 +392,30 @@ import { memo, useMemo, useCallback } from 'react'
 // ✅ React.memo로 불필요한 리렌더링 방지
 export const ExpensiveComponent = memo(function ExpensiveComponent({
   data,
-  onUpdate
+  onUpdate,
 }: {
   data: ComplexData[]
   onUpdate: (id: string) => void
 }) {
   // 복잡한 계산을 메모이제이션
   const processedData = useMemo(() => {
-    return data.map(item => ({
+    return data.map((item) => ({
       ...item,
-      calculated: expensiveCalculation(item)
+      calculated: expensiveCalculation(item),
     }))
   }, [data])
 
   // 콜백 함수 메모이제이션
-  const handleUpdate = useCallback((id: string) => {
-    onUpdate(id)
-  }, [onUpdate])
+  const handleUpdate = useCallback(
+    (id: string) => {
+      onUpdate(id)
+    },
+    [onUpdate]
+  )
 
   return (
     <div>
-      {processedData.map(item => (
+      {processedData.map((item) => (
         <ExpensiveItem key={item.id} item={item} onUpdate={handleUpdate} />
       ))}
     </div>
@@ -471,11 +469,7 @@ export function VirtualizedList({ items, itemHeight, height }: VirtualizedListPr
   )
 
   return (
-    <List
-      height={height}
-      itemCount={items.length}
-      itemSize={itemHeight}
-    >
+    <List height={height} itemCount={items.length} itemSize={itemHeight}>
       {Row}
     </List>
   )
@@ -503,18 +497,18 @@ export function Select<T>({
   onChange,
   getLabel,
   getValue,
-  className
+  className,
 }: SelectProps<T>) {
   return (
     <select
       value={value ? getValue(value) : ''}
       onChange={(e) => {
-        const selectedValue = options.find(option => getValue(option) === e.target.value)
+        const selectedValue = options.find((option) => getValue(option) === e.target.value)
         if (selectedValue) onChange(selectedValue)
       }}
       className={className}
     >
-      {options.map(option => (
+      {options.map((option) => (
         <option key={getValue(option)} value={getValue(option)}>
           {getLabel(option)}
         </option>
@@ -524,7 +518,7 @@ export function Select<T>({
 }
 
 // 사용법 (완전한 타입 추론)
-<Select<User>
+;<Select<User>
   options={users}
   value={selectedUser}
   onChange={setSelectedUser}
@@ -542,18 +536,13 @@ type ButtonProps<T extends boolean = false> = {
   loading?: T
 } & (T extends true
   ? { onClick?: never; disabled?: boolean }
-  : { onClick: () => void; disabled?: boolean }
-)
+  : { onClick: () => void; disabled?: boolean })
 
 export function Button<T extends boolean = false>(props: ButtonProps<T>) {
   const { children, loading, onClick, disabled, ...restProps } = props
 
   return (
-    <button
-      onClick={loading ? undefined : onClick}
-      disabled={disabled || loading}
-      {...restProps}
-    >
+    <button onClick={loading ? undefined : onClick} disabled={disabled || loading} {...restProps}>
       {loading ? <Spinner /> : children}
     </button>
   )
@@ -569,7 +558,7 @@ export function Button<T extends boolean = false>(props: ButtonProps<T>) {
 function useToggle(initialValue: boolean = false) {
   const [value, setValue] = useState(initialValue)
 
-  const toggle = useCallback(() => setValue(prev => !prev), [])
+  const toggle = useCallback(() => setValue((prev) => !prev), [])
   const setTrue = useCallback(() => setValue(true), [])
   const setFalse = useCallback(() => setValue(false), [])
 
@@ -583,11 +572,7 @@ export function Modal({ children }) {
   return (
     <>
       <button onClick={open}>모달 열기</button>
-      {isOpen && (
-        <Dialog onClose={close}>
-          {children}
-        </Dialog>
-      )}
+      {isOpen && <Dialog onClose={close}>{children}</Dialog>}
     </>
   )
 }
@@ -614,7 +599,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return {
         ...state,
         items: [...state.items, action.payload],
-        total: calculateTotal([...state.items, action.payload])
+        total: calculateTotal([...state.items, action.payload]),
       }
     // 다른 케이스들...
     default:
@@ -630,11 +615,7 @@ const CartContext = createContext<{
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [], total: 0 })
 
-  return (
-    <CartContext.Provider value={{ state, dispatch }}>
-      {children}
-    </CartContext.Provider>
-  )
+  return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>
 }
 
 export function useCart() {
@@ -653,7 +634,16 @@ export function useCart() {
 ```tsx
 // 너무 많은 props
 function OverloadedComponent({
-  prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9, prop10
+  prop1,
+  prop2,
+  prop3,
+  prop4,
+  prop5,
+  prop6,
+  prop7,
+  prop8,
+  prop9,
+  prop10,
 }) {
   // 너무 많은 책임
 }
@@ -673,11 +663,7 @@ function Level2({ user }) {
 // 거대한 컴포넌트
 function GiantComponent() {
   // 500줄 이상의 JSX와 로직
-  return (
-    <div>
-      {/* 엄청난 양의 JSX */}
-    </div>
-  )
+  return <div>{/* 엄청난 양의 JSX */}</div>
 }
 
 // 불필요한 래핑
@@ -701,31 +687,37 @@ function BadComponent() {
 새 컴포넌트 작성 시 확인사항:
 
 ### 설계
+
 - [ ] 단일 책임 원칙 준수
 - [ ] 적절한 컴포지션 활용
 - [ ] 재사용 가능성 고려
 
 ### 타입 안전성
+
 - [ ] Props 인터페이스 정의
 - [ ] 제네릭 활용 (필요시)
 - [ ] 조건부 타입 활용 (필요시)
 
 ### 성능
+
 - [ ] 불필요한 리렌더링 방지
 - [ ] 메모이제이션 적절히 활용
 - [ ] 큰 리스트 가상화 고려
 
 ### Server/Client 분리
+
 - [ ] Server Component 우선 고려
 - [ ] 'use client' 최소화
 - [ ] 적절한 경계 설정
 
 ### 접근성
+
 - [ ] 의미있는 HTML 태그 사용
 - [ ] ARIA 속성 추가
 - [ ] 키보드 네비게이션 지원
 
 ### 코드 품질
+
 - [ ] ESLint 규칙 준수
 - [ ] 300줄 이하 유지
 - [ ] 명확한 네이밍

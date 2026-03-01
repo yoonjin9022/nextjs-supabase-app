@@ -1350,7 +1350,7 @@ export async function rateLimitedAction(formData: FormData) {
   const headersList = await headers()
   const ip = headersList.get('x-forwarded-for') || 'unknown'
 
-  if (!await checkRateLimit(ip)) {
+  if (!(await checkRateLimit(ip))) {
     return {
       success: false,
       message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.',
@@ -1496,7 +1496,7 @@ export async function submitProfileAction(formData: FormData) {
 }
 
 // app/actions/documents.ts
-'use server'
+;('use server')
 
 export async function submitDocumentAction(formData: FormData) {
   try {
@@ -1516,7 +1516,7 @@ export async function submitDocumentAction(formData: FormData) {
 }
 
 // app/actions/drafts.ts
-'use server'
+;('use server')
 
 export async function saveDraftAction(draftId: string, data: any) {
   try {

@@ -38,11 +38,11 @@ Page (app/protected/*/page.tsx)
 
 ### Supabase 클라이언트 사용 규칙
 
-| 상황 | 사용 함수 |
-|------|-----------|
+| 상황                                                    | 사용 함수                                   |
+| ------------------------------------------------------- | ------------------------------------------- |
 | Server Component / Route Handler / Service / Repository | `lib/supabase/server.ts`의 `createClient()` |
-| Client Component (`'use client'`) | `lib/supabase/client.ts`의 `createClient()` |
-| 프록시 미들웨어 | `lib/supabase/proxy.ts`의 `updateSession()` |
+| Client Component (`'use client'`)                       | `lib/supabase/client.ts`의 `createClient()` |
+| 프록시 미들웨어                                         | `lib/supabase/proxy.ts`의 `updateSession()` |
 
 > **중요**: 서버 클라이언트는 Fluid compute 지원을 위해 전역 변수에 저장하지 말고, 항상 함수 호출마다 새로 생성해야 합니다.
 
@@ -88,6 +88,7 @@ app/
 ## 폼 패턴
 
 새로운 폼 구현 시 권장 패턴:
+
 - React Hook Form + Zod 조합 사용
 - 클라이언트 검증(Zod resolver) + 서버 사이드 검증 이중 적용
 - 서버 액션은 `'use server'`로 별도 파일 정의
@@ -97,6 +98,7 @@ app/
 ## 개발 가이드 문서
 
 `docs/guides/`에 상세 가이드 포함:
+
 - `project-structure.md` - 폴더 구조 및 네이밍 규칙
 - `component-patterns.md` - 컴포넌트 설계 패턴
 - `forms-react-hook-form.md` - React Hook Form + Zod 활용

@@ -1,5 +1,5 @@
 import { findProfileById, updateProfile } from '@/lib/repositories/profile.repository'
-import type { Profile, UpdateProfileDto, ProfileResult } from '@/lib/types/profile.types'
+import type { Profile, ProfileResult, UpdateProfileDto } from '@/lib/types/profile.types'
 
 // 프로필 조회 서비스
 export async function getProfile(userId: string): Promise<ProfileResult<Profile>> {

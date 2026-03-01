@@ -4,11 +4,7 @@ import type { Profile, UpdateProfileDto } from '@/lib/types/profile.types'
 // 프로필 ID로 단건 조회
 export async function findProfileById(userId: string): Promise<Profile | null> {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
 
   if (error) {
     console.error('[ProfileRepository] findProfileById 오류:', error)

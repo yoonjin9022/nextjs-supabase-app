@@ -1,17 +1,13 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import type { Profile, UpdateProfileDto } from '@/lib/types/profile.types'
 
 interface ProfileFormProps {
@@ -62,47 +58,47 @@ export function ProfileForm({ profile, userId }: ProfileFormProps) {
         <CardTitle>프로필 수정</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className='flex flex-col gap-6'>
-          <div className='grid gap-2'>
-            <Label htmlFor='username'>사용자명</Label>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="grid gap-2">
+            <Label htmlFor="username">사용자명</Label>
             <Input
-              id='username'
+              id="username"
               value={formData.username ?? ''}
               onChange={(e) => setFormData({ ...formData, username: e.target.value || null })}
-              placeholder='영문, 숫자, 언더스코어 (3~20자)'
+              placeholder="영문, 숫자, 언더스코어 (3~20자)"
             />
           </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='full_name'>이름</Label>
+          <div className="grid gap-2">
+            <Label htmlFor="full_name">이름</Label>
             <Input
-              id='full_name'
+              id="full_name"
               value={formData.full_name ?? ''}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value || null })}
-              placeholder='홍길동'
+              placeholder="홍길동"
             />
           </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='website'>웹사이트</Label>
+          <div className="grid gap-2">
+            <Label htmlFor="website">웹사이트</Label>
             <Input
-              id='website'
-              type='url'
+              id="website"
+              type="url"
               value={formData.website ?? ''}
               onChange={(e) => setFormData({ ...formData, website: e.target.value || null })}
-              placeholder='https://example.com'
+              placeholder="https://example.com"
             />
           </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='bio'>소개</Label>
+          <div className="grid gap-2">
+            <Label htmlFor="bio">소개</Label>
             <Input
-              id='bio'
+              id="bio"
               value={formData.bio ?? ''}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value || null })}
-              placeholder='자기소개를 입력하세요'
+              placeholder="자기소개를 입력하세요"
             />
           </div>
-          {error && <p className='text-sm text-destructive'>{error}</p>}
-          {successMessage && <p className='text-sm text-green-600'>{successMessage}</p>}
-          <Button type='submit' disabled={isLoading}>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {successMessage && <p className="text-sm text-green-600">{successMessage}</p>}
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? '저장 중...' : '저장'}
           </Button>
         </form>

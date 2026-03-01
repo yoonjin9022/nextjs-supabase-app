@@ -213,12 +213,7 @@ const nextConfig: NextConfig = {
       },
     },
     // 🔄 패키지 import 최적화
-    optimizePackageImports: [
-      'lucide-react',
-      '@radix-ui/react-icons',
-      'date-fns',
-      'lodash-es',
-    ],
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'date-fns', 'lodash-es'],
   },
 }
 
