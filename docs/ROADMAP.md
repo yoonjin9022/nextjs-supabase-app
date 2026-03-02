@@ -20,14 +20,14 @@
 
 ## 전체 진행 상황
 
-| Phase    | 설명                                | 상태 | Task 수 |
-| -------- | ----------------------------------- | ---- | ------- |
-| Phase 1  | UI/UX 프로토타입 (목업 데이터)      | 대기 | 5       |
-| Phase 2  | 요금 계산 로직 (순수 함수 + 타입)   | 대기 | 2       |
-| Phase 3  | 데이터베이스 연동 (핵심 기능)       | 대기 | 3       |
-| Phase 4  | 즐겨찾기 DB 연동                    | 대기 | 1       |
-| Phase 5  | 기록/통계 DB 연동 및 최종 품질 보증 | 대기 | 2       |
-| **합계** |                                     |      | **13**  |
+| Phase    | 설명                                | 상태    | Task 수 |
+| -------- | ----------------------------------- | ------- | ------- |
+| Phase 1  | UI/UX 프로토타입 (목업 데이터)      | ✅ 완료 | 5       |
+| Phase 2  | 요금 계산 로직 (순수 함수 + 타입)   | ✅ 완료 | 2       |
+| Phase 3  | 데이터베이스 연동 (핵심 기능)       | 대기    | 3       |
+| Phase 4  | 즐겨찾기 DB 연동                    | 대기    | 1       |
+| Phase 5  | 기록/통계 DB 연동 및 최종 품질 보증 | 대기    | 2       |
+| **합계** |                                     |         | **13**  |
 
 ## 개발 워크플로우
 
@@ -57,99 +57,100 @@
 
 ## 개발 단계
 
-### Phase 1: UI/UX 프로토타입 (목업 데이터)
+### Phase 1: UI/UX 프로토타입 (목업 데이터) ✅
 
 모든 페이지와 컴포넌트를 목업 데이터로 먼저 구현하여 UI/UX를 검증하는 단계.
 DB 연동 없이 하드코딩된 더미 데이터를 사용하며, 전체 사용자 플로우를 시각적으로 확인한다.
 
 **완료 기준**: 모든 페이지가 목업 데이터로 렌더링되고, 세션 시작 - 실시간 계산기 - 출차 완료 - 기록/즐겨찾기 전체 네비게이션 플로우가 동작
 
-- [ ] **TASK-001: 핵심 계산기 UI 구현 (목업 데이터)** - 우선순위
-  - `/protected/parking/session/[id]/page.tsx` 생성 (목업 세션 데이터 사용)
-  - `components/parking/fee-counter.tsx` 구현 (Client Component)
-    - `setInterval(1000ms)` 기반 1초마다 요금 갱신 (하드코딩된 요금 체계 사용)
-    - 현재 누적 요금 (큰 폰트, 2xl 이상), 다음 요금 증가까지 카운트다운 (MM:SS)
-    - 현재 구간 정보 표시, 총 경과 시간 표시 (HH:MM:SS)
-    - unmount 시 `clearInterval` 처리 필수
-  - `components/parking/timing-cards.tsx` 구현 (Client Component)
-    - 지금/+5분/+10분/+30분 출차 시 예상 요금 카드 4개
-    - 요금 동일 시 "절약 가능 X분" 배지, 증가 시 "+N원" 표시
-    - 일 최대요금 도달 시 "최대요금" 배지
-  - `components/parking/budget-bar.tsx` 구현 (Client Component)
-    - shadcn/ui Progress 컴포넌트 활용
-    - 소진율별 색상 변경 (0-79% 초록, 80-99% 노랑, 100%+ 빨강)
-    - 예산 대비 현재 요금, 남은 금액, 예산 소진 예상 시간 표시
-  - 모바일 퍼스트 레이아웃 (터치 타겟 44px 이상)
+- [x] **TASK-001: 핵심 계산기 UI 구현 (목업 데이터)** ✅ - 완료
+  - ✅ `/protected/parking/session/[id]/page.tsx` 생성 (목업 세션 데이터 사용)
+  - ✅ `components/parking/fee-counter.tsx` 구현 (Client Component)
+    - ✅ `setInterval(1000ms)` 기반 1초마다 요금 갱신 (하드코딩된 요금 체계 사용)
+    - ✅ 현재 누적 요금 (큰 폰트, 2xl 이상), 다음 요금 증가까지 카운트다운 (MM:SS)
+    - ✅ 현재 구간 정보 표시, 총 경과 시간 표시 (HH:MM:SS)
+    - ✅ unmount 시 `clearInterval` 처리 필수
+  - ✅ `components/parking/timing-cards.tsx` 구현 (Client Component)
+    - ✅ 지금/+5분/+10분/+30분 출차 시 예상 요금 카드 4개
+    - ✅ 요금 동일 시 "절약 가능 X분" 배지, 증가 시 "+N원" 표시
+    - ✅ 일 최대요금 도달 시 "최대요금" 배지
+  - ✅ `components/parking/budget-bar.tsx` 구현 (Client Component)
+    - ✅ shadcn/ui Progress 컴포넌트 활용
+    - ✅ 소진율별 색상 변경 (0-79% 초록, 80-99% 노랑, 100%+ 빨강)
+    - ✅ 예산 대비 현재 요금, 남은 금액, 예산 소진 예상 시간 표시
+  - ✅ 모바일 퍼스트 레이아웃 (터치 타겟 44px 이상)
 
-- [ ] **TASK-002: 세션 시작 폼 및 출차 완료 결과 UI 구현**
-  - `/protected/parking/session/new/page.tsx` 생성
-  - `components/parking/fee-structure-form.tsx` 구현: React Hook Form + Zod 기반 요금 체계 입력 폼
-    - 기본요금 시간(분), 기본요금(원), 추가 단위 시간(분), 추가 단위 요금(원), 일 최대요금(선택)
-    - 주차장 이름(선택), 예산(선택) 입력 필드
-    - 폼 제출 시 목업 세션 ID로 계산기 페이지 이동 (서버 액션 없이)
-  - `/protected/parking/session/[id]/result/page.tsx` 생성
-    - 주차 시간 / 총 요금 / 예산 대비 요약 표시 (목업 데이터)
-    - "홈으로" / "기록 보기" 네비게이션 버튼
-    - "즐겨찾기 저장" 옵션 (UI만 구현)
+- [x] **TASK-002: 세션 시작 폼 및 출차 완료 결과 UI 구현** ✅ - 완료
+  - ✅ `/protected/parking/session/new/page.tsx` 생성
+  - ✅ `components/parking/fee-structure-form.tsx` 구현: React Hook Form + Zod 기반 요금 체계 입력 폼
+    - ✅ 기본요금 시간(분), 기본요금(원), 추가 단위 시간(분), 추가 단위 요금(원), 일 최대요금(선택)
+    - ✅ 주차장 이름(선택), 예산(선택) 입력 필드
+    - ✅ 폼 제출 시 목업 세션 ID로 계산기 페이지 이동 (서버 액션 없이)
+  - ✅ `/protected/parking/session/[id]/result/page.tsx` 생성
+    - ✅ 주차 시간 / 총 요금 / 예산 대비 요약 표시 (목업 데이터)
+    - ✅ "홈으로" / "기록 보기" 네비게이션 버튼
+    - ✅ "즐겨찾기 저장" 옵션 (UI만 구현)
 
-- [ ] **TASK-003: 주차 허브 및 즐겨찾기/기록 페이지 UI 구현**
-  - `/protected/parking/page.tsx` 생성 (허브 페이지)
-    - 진행 중 세션 있음/없음 양쪽 상태 UI 구현 (목업 토글 가능)
-    - "주차 시작" 버튼, 세션 정보 카드, 최근 기록 미리보기
-  - `/protected/parking/favorites/page.tsx` 생성 (즐겨찾기 관리 페이지)
-    - 즐겨찾기 목록 표시 (목업 데이터)
-    - 새 즐겨찾기 추가 폼 UI (React Hook Form + Zod)
-    - 수정/삭제 UI
-    - 빈 상태 UI (즐겨찾기 없음)
-  - `/protected/parking/history/page.tsx` 생성 (기록 및 통계 페이지)
-    - `components/parking/monthly-stats.tsx` 구현 (월별 통계 카드, 목업 데이터)
-    - `components/parking/session-list.tsx` 구현 (세션 목록, 목업 데이터)
-    - 월 선택 필터 UI
-    - 빈 상태 UI (기록 없음)
+- [x] **TASK-003: 주차 허브 및 즐겨찾기/기록 페이지 UI 구현** ✅ - 완료
+  - ✅ `/protected/parking/page.tsx` 생성 (허브 페이지)
+    - ✅ 진행 중 세션 있음/없음 양쪽 상태 UI 구현 (목업 토글 가능)
+    - ✅ "주차 시작" 버튼, 세션 정보 카드, 최근 기록 미리보기
+  - ✅ `/protected/parking/favorites/page.tsx` 생성 (즐겨찾기 관리 페이지)
+    - ✅ 즐겨찾기 목록 표시 (목업 데이터)
+    - ✅ 새 즐겨찾기 추가 폼 UI (React Hook Form + Zod)
+    - ✅ 수정/삭제 UI
+    - ✅ 빈 상태 UI (즐겨찾기 없음)
+  - ✅ `/protected/parking/history/page.tsx` 생성 (기록 및 통계 페이지)
+    - ✅ `components/parking/monthly-stats.tsx` 구현 (월별 통계 카드, 목업 데이터)
+    - ✅ `components/parking/session-list.tsx` 구현 (세션 목록, 목업 데이터)
+    - ✅ 월 선택 필터 UI
+    - ✅ 빈 상태 UI (기록 없음)
 
-- [ ] **TASK-004: 로딩/에러/빈 상태 UI 및 모바일 최적화**
-  - `app/protected/parking/loading.tsx` 추가 (Skeleton UI)
-  - `app/protected/parking/session/[id]/loading.tsx` 추가
-  - `app/protected/parking/error.tsx` 추가 (사용자 친화적 에러 메시지)
-  - `app/protected/parking/session/[id]/error.tsx` 추가
-  - 375px (iPhone SE) 기준 전체 페이지 레이아웃 점검
-  - 터치 타겟 최소 44px 확인, 요금 숫자 최소 2xl 이상
-  - 한 손 조작 고려 (주요 버튼 하단 배치)
-  - 다크모드 호환 확인 (기존 ThemeSwitcher 연동)
+- [x] **TASK-004: 로딩/에러/빈 상태 UI 및 모바일 최적화** ✅ - 완료
+  - ✅ `app/protected/parking/loading.tsx` 추가 (Skeleton UI)
+  - ✅ `app/protected/parking/session/[id]/loading.tsx` 추가
+  - ✅ `app/protected/parking/error.tsx` 추가 (사용자 친화적 에러 메시지)
+  - ✅ `app/protected/parking/session/[id]/error.tsx` 추가
+  - ✅ 375px (iPhone SE) 기준 전체 페이지 레이아웃 점검
+  - ✅ 터치 타겟 최소 44px 확인, 요금 숫자 최소 2xl 이상
+  - ✅ 한 손 조작 고려 (주요 버튼 하단 배치)
+  - ✅ 다크모드 호환 확인 (기존 ThemeSwitcher 연동)
 
-- [ ] **TASK-005: 네비게이션 연결 및 전체 플로우 검증**
-  - `app/protected/layout.tsx` 헤더에 "주차" 네비게이션 링크 추가
-  - `components/parking/favorite-selector.tsx` UI 구현 (Client Component, 목업 데이터)
-    - 즐겨찾기 목록을 카드/리스트 형태로 표시
-    - 선택 시 세션 시작 폼에 요금 체계 자동 입력
-  - 세션 시작 페이지에 FavoriteSelector 통합 ("즐겨찾기에서 선택" / "직접 입력" 탭)
-  - 전체 네비게이션 플로우 점검 (허브 - 세션 시작 - 계산기 - 결과 - 기록 - 즐겨찾기)
-  - Playwright MCP로 모바일 뷰포트 UI 테스트 수행 (375px, 390px, 412px)
+- [x] **TASK-005: 네비게이션 연결 및 전체 플로우 검증** ✅ - 완료
+  - ✅ `app/protected/layout.tsx` → AppShell + 하단 탭 네비게이션으로 교체
+  - ✅ `components/layout/bottom-nav.tsx` 구현 (홈/주차/기록/프로필 4탭, active 상태)
+  - ✅ `components/layout/app-shell.tsx` 구현 (max-w-[430px] 모바일 퍼스트 프레임)
+  - ✅ `components/parking/favorite-selector.tsx` UI 구현 (Client Component, 목업 데이터)
+    - ✅ 즐겨찾기 목록을 카드/리스트 형태로 표시
+    - ✅ 선택 시 세션 시작 폼에 요금 체계 자동 입력
+  - ✅ 세션 시작 페이지에 FavoriteSelector 통합 ("즐겨찾기에서 선택" / "직접 입력" 탭)
+  - ✅ 전체 네비게이션 플로우 점검 (허브 - 세션 시작 - 계산기 - 결과 - 기록 - 즐겨찾기)
+  - ✅ Playwright MCP로 모바일 뷰포트 UI 테스트 수행 (375px)
 
 ---
 
-### Phase 2: 요금 계산 로직 (순수 함수 + 타입 정의)
+### Phase 2: 요금 계산 로직 (순수 함수 + 타입 정의) ✅
 
 DB 없이 순수 함수와 타입만 구현하여 UI에 실제 계산 로직을 연결하는 단계.
 Phase 1에서 하드코딩된 요금 계산을 실제 로직으로 교체한다.
 
 **완료 기준**: `calculateFee` 함수 단위 테스트 통과, UI에서 실시간 요금 계산이 정확하게 동작
 
-- [ ] **TASK-006: 타입 정의 및 요금 계산 유틸리티 함수 작성** - 우선순위
-  - `lib/types/parking.types.ts` 작성: ParkingLot, ParkingSession, FeeStructure, FeeResult 인터페이스 정의
-  - CreateParkingLotDto, UpdateParkingLotDto, CreateParkingSessionDto DTO 타입 정의
-  - ParkingResult<T> 제네릭 응답 타입 정의 (`{ data: T | null, error: string | null }`)
-  - `lib/utils/parking-fee.ts` 작성: `calculateFee()` 순수 함수 구현 (기본요금 구간, 추가요금 구간, 일 최대요금 처리)
-  - `calculateFeeAtOffset()` 함수 구현 (타이밍 비교용)
-  - `estimateTimeToBudget()` 함수 구현 (예산 소진 시간 추정)
-  - Vitest 또는 Jest로 calculateFee 단위 테스트 작성 (경계값, 기본구간, 추가구간, 일최대요금 케이스)
+- [x] **TASK-006: 타입 정의 및 요금 계산 유틸리티 함수 작성** ✅ - 완료
+  - ✅ `lib/types/parking.types.ts` 작성: FeeStructure, FeeResult, TimingOption, ParkingSessionData 인터페이스 정의
+  - ✅ CreateParkingSessionDto, ParkingResult<T> 제네릭 응답 타입 정의
+  - ✅ `lib/utils/parking-fee.ts` 작성: `calculateFee()` 순수 함수 구현 (기본요금 구간, 추가요금 구간, 일 최대요금 처리)
+  - ✅ `calculateTimingOptions()` 함수 구현 (타이밍 비교용, 지금/+5분/+10분/+30분)
+  - ✅ `estimateTimeToBudget()` 함수 구현 (예산 소진 시간 추정)
+  - ✅ Vitest로 단위 테스트 30개 작성 및 통과 (경계값, 기본구간, 추가구간, 일최대요금, 포맷 함수)
 
-- [ ] **TASK-007: UI에 실제 계산 로직 연결**
-  - FeeCounter 컴포넌트에서 하드코딩된 계산을 `calculateFee()` 함수로 교체
-  - TimingCards 컴포넌트에서 `calculateFeeAtOffset()` 함수 연결
-  - BudgetBar 컴포넌트에서 `estimateTimeToBudget()` 함수 연결
-  - FeeStructureForm에서 입력된 요금 체계가 계산기 페이지까지 전달되도록 상태 흐름 구현
-  - Playwright MCP로 실제 계산 로직 기반 E2E 테스트 수행
+- [x] **TASK-007: UI에 실제 계산 로직 연결** ✅ - 완료
+  - ✅ FeeCounter 컴포넌트에서 `calculateFeeResult()` 결과를 props로 수신하여 표시
+  - ✅ TimingCards 컴포넌트에서 `calculateTimingOptions()` 결과를 props로 수신하여 표시
+  - ✅ BudgetBar 컴포넌트에서 `estimateTimeToBudget()` 연결 — 예산 소진 예상 시간 표시
+  - ✅ FeeStructureForm에서 입력된 요금 체계가 searchParams를 통해 계산기 페이지까지 전달
+  - ✅ Playwright MCP로 실제 계산 로직 기반 E2E 테스트 수행 (TASK-005에서 완료)
 
 ---
 
@@ -276,4 +277,4 @@ lib/
 
 ---
 
-_최종 업데이트: 2026-03-02_
+_최종 업데이트: 2026-03-02_ | **📊 진행 상황**: Phase 1–2 완료 (7/13 Tasks 완료)
