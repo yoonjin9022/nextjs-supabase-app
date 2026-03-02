@@ -43,3 +43,7 @@ next-env.d.ts
 
 # task manager
 shrimp_data/
+
+# playwright
+.playwright-mcp/
+*.png
