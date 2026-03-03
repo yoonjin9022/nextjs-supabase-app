@@ -1,8 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -44,10 +43,14 @@ export interface FeeFormFillData {
 
 interface FeeStructureFormProps {
   initialValues?: FeeFormFillData
+  // 서버 액션: 정의된 경우 DB에 세션을 저장하고 redirect
+  // 미정의 시에는 목업 모드로 동작 (개발/테스트용)
+  formAction?: (formData: FormData) => Promise<void>
 }
 
-export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
-  const router = useRouter()
+export function FeeStructureForm({ initialValues, formAction }: FeeStructureFormProps) {
+  // 숨겨진 input들의 값을 제어하기 위한 ref
+  const formRef = useRef<HTMLFormElement>(null)
 
   const {
     register,
@@ -71,20 +74,29 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
     }
   }, [initialValues, reset])
 
+  // 서버 액션 연동 시: 클라이언트 유효성 검증 후 FormData를 서버 액션에 전달
+  const handleServerAction = async (data: FeeStructureFormValues) => {
+    if (!formAction) return
+
+    const fd = new FormData()
+    fd.append('baseDuration', String(data.baseDuration))
+    fd.append('baseFee', String(data.baseFee))
+    fd.append('unitDuration', String(data.unitDuration))
+    fd.append('unitFee', String(data.unitFee))
+    fd.append('enteredAt', String(Date.now()))
+    if (data.parkingLotName) fd.append('parkingLotName', data.parkingLotName)
+    if (data.maxDailyFee !== undefined) fd.append('maxDailyFee', String(data.maxDailyFee))
+    if (data.budget !== undefined) fd.append('budget', String(data.budget))
+
+    await formAction(fd)
+  }
+
   const onSubmit = (data: FeeStructureFormValues) => {
-    // 요금 체계 데이터를 searchParams로 인코딩하여 계산기 페이지로 전달
-    const params = new URLSearchParams({
-      baseDuration: String(data.baseDuration),
-      baseFee: String(data.baseFee),
-      unitDuration: String(data.unitDuration),
-      unitFee: String(data.unitFee),
-      entryAt: String(Date.now()),
-      ...(data.parkingLotName && { name: data.parkingLotName }),
-      ...(data.maxDailyFee !== undefined && { maxDailyFee: String(data.maxDailyFee) }),
-      ...(data.budget !== undefined && { budget: String(data.budget) }),
-    })
-    // MVP: 목업 세션 ID 사용 (실제 구현 시 DB에 세션 생성 후 실제 ID 사용)
-    router.push('/protected/parking/session/mock-session-1?' + params.toString())
+    if (formAction) {
+      return handleServerAction(data)
+    }
+    // formAction이 없는 경우: 개발/테스트용 목업 모드 (아무 동작 없음)
+    console.warn('[FeeStructureForm] formAction이 제공되지 않았습니다.')
   }
 
   return (
@@ -93,7 +105,7 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
         <CardTitle>요금 체계 입력</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           {/* 주차장 이름 */}
           <div className="grid gap-1.5">
             <Label htmlFor="parkingLotName">주차장 이름 (선택)</Label>
@@ -115,7 +127,7 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
                 {...register('baseDuration', { valueAsNumber: true })}
               />
               {errors.baseDuration && (
-                <p className="text-sm text-destructive">{errors.baseDuration.message}</p>
+                <p className="text-destructive text-sm">{errors.baseDuration.message}</p>
               )}
             </div>
             <div className="grid gap-1.5">
@@ -127,7 +139,7 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
                 {...register('baseFee', { valueAsNumber: true })}
               />
               {errors.baseFee && (
-                <p className="text-sm text-destructive">{errors.baseFee.message}</p>
+                <p className="text-destructive text-sm">{errors.baseFee.message}</p>
               )}
             </div>
           </div>
@@ -143,7 +155,7 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
                 {...register('unitDuration', { valueAsNumber: true })}
               />
               {errors.unitDuration && (
-                <p className="text-sm text-destructive">{errors.unitDuration.message}</p>
+                <p className="text-destructive text-sm">{errors.unitDuration.message}</p>
               )}
             </div>
             <div className="grid gap-1.5">
@@ -155,7 +167,7 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
                 {...register('unitFee', { valueAsNumber: true })}
               />
               {errors.unitFee && (
-                <p className="text-sm text-destructive">{errors.unitFee.message}</p>
+                <p className="text-destructive text-sm">{errors.unitFee.message}</p>
               )}
             </div>
           </div>
@@ -170,7 +182,7 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
               {...register('maxDailyFee', { valueAsNumber: true })}
             />
             {errors.maxDailyFee && (
-              <p className="text-sm text-destructive">{errors.maxDailyFee.message}</p>
+              <p className="text-destructive text-sm">{errors.maxDailyFee.message}</p>
             )}
           </div>
 
@@ -183,7 +195,7 @@ export function FeeStructureForm({ initialValues }: FeeStructureFormProps) {
               placeholder="5000"
               {...register('budget', { valueAsNumber: true })}
             />
-            {errors.budget && <p className="text-sm text-destructive">{errors.budget.message}</p>}
+            {errors.budget && <p className="text-destructive text-sm">{errors.budget.message}</p>}
           </div>
 
           <Button type="submit" disabled={isSubmitting} className="h-11 w-full">

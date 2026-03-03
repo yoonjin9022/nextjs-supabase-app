@@ -1,34 +1,56 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
+import { SaveFavoriteButton } from '@/components/parking/save-favorite-button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { getSession } from '@/lib/services/parking-session.service'
+import { createClient } from '@/lib/supabase/server'
+import { formatDuration } from '@/lib/utils/format'
 
-// 목업 결과 데이터
-const MOCK_RESULT = {
-  parkingLotName: '강남구 공영주차장',
-  durationMinutes: 75, // 1시간 15분
-  totalFee: 3500,
-  budget: 5000,
-}
+export default async function ParkingSessionResultPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
 
-function formatDuration(minutes: number): string {
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  if (h === 0) return `${m}분`
-  if (m === 0) return `${h}시간`
-  return `${h}시간 ${m}분`
-}
+  const supabase = await createClient()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const userId = claimsData?.claims?.sub
 
-export default function ParkingSessionResultPage() {
-  const { parkingLotName, durationMinutes, totalFee, budget } = MOCK_RESULT
-  const usagePercent = budget > 0 ? Math.round((totalFee / budget) * 100) : 0
+  if (!userId) {
+    redirect('/auth/login')
+  }
+
+  // DB에서 세션 조회
+  const { data: session, error } = await getSession(id, userId)
+
+  // 세션을 찾을 수 없거나 오류 발생 시 허브로 redirect
+  if (error || !session) {
+    redirect('/protected/parking')
+  }
+
+  // 아직 종료되지 않은 세션이면 계산기 페이지로 redirect
+  if (session.exited_at === null || session.total_fee === null) {
+    redirect(`/protected/parking/session/${id}`)
+  }
+
+  // 경과 시간 계산
+  const elapsedMs = new Date(session.exited_at).getTime() - new Date(session.entered_at).getTime()
+
+  const totalFee = session.total_fee
+  const budget = session.budget
+  const usagePercent = budget !== null && budget > 0 ? Math.round((totalFee / budget) * 100) : null
 
   return (
     <div className="flex w-full flex-col gap-6 pb-8">
       {/* 헤더 */}
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold">출차 완료</h1>
-        {parkingLotName && <p className="text-sm text-muted-foreground">{parkingLotName}</p>}
+        {session.parking_lot_name && (
+          <p className="text-muted-foreground text-sm">{session.parking_lot_name}</p>
+        )}
       </div>
 
       {/* 결과 카드 */}
@@ -36,36 +58,36 @@ export default function ParkingSessionResultPage() {
         <CardContent className="flex flex-col gap-6 p-6">
           {/* 주차 시간 */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">주차 시간</span>
-            <span className="text-lg font-semibold">{formatDuration(durationMinutes)}</span>
+            <span className="text-muted-foreground text-sm">주차 시간</span>
+            <span className="text-lg font-semibold">{formatDuration(elapsedMs)}</span>
           </div>
 
           {/* 총 요금 */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">총 요금</span>
+            <span className="text-muted-foreground text-sm">총 요금</span>
             <span className="text-2xl font-bold">{totalFee.toLocaleString()}원</span>
           </div>
 
-          {/* 예산 대비 */}
-          <div className="flex flex-col gap-2 rounded-lg bg-muted/50 p-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">예산 대비</span>
-              <span className="font-medium">{usagePercent}% 사용</span>
+          {/* 예산 대비 (예산이 설정된 경우에만 표시) */}
+          {budget !== null && budget > 0 && (
+            <div className="bg-muted/50 flex flex-col gap-2 rounded-lg p-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">예산 대비</span>
+                <span className="font-medium">{usagePercent}% 사용</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">예산</span>
+                <span>
+                  {totalFee.toLocaleString()}원 / {budget.toLocaleString()}원
+                </span>
+              </div>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">예산</span>
-              <span>
-                {totalFee.toLocaleString()}원 / {budget.toLocaleString()}원
-              </span>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* 즐겨찾기 저장 버튼 (UI만) */}
-      <Button variant="outline" className="h-11 w-full" disabled>
-        즐겨찾기 저장 (준비 중)
-      </Button>
+      {/* 즐겨찾기 저장 버튼 */}
+      <SaveFavoriteButton sessionId={id} />
 
       {/* 하단 액션 버튼 */}
       <div className="grid grid-cols-2 gap-3">
