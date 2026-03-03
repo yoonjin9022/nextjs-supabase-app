@@ -20,7 +20,7 @@
 | UI 컴포넌트 | shadcn/ui                          |
 | 백엔드      | Supabase (PostgreSQL + Auth + RLS) |
 | 폼          | React Hook Form + Zod              |
-| 모니터링    | Sentry + Vercel Analytics          |
+| 모니터링    | Vercel Analytics                   |
 
 ## 아키텍처
 
@@ -72,13 +72,6 @@ npm install
 # Supabase 프로젝트 설정 (필수)
 NEXT_PUBLIC_SUPABASE_URL=<Supabase 프로젝트 URL>
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable 또는 anon 키>
-
-# Sentry 에러 모니터링 (선택 - 프로덕션 권장)
-NEXT_PUBLIC_SENTRY_DSN=<Sentry 프로젝트 DSN>
-SENTRY_DSN=<Sentry 프로젝트 DSN>
-SENTRY_ORG=<Sentry 조직 슬러그>
-SENTRY_PROJECT=<Sentry 프로젝트 슬러그>
-SENTRY_AUTH_TOKEN=<Sentry 소스맵 업로드 토큰>
 ```
 
 > **Supabase 설정값 확인**: Supabase 대시보드 → Project Settings → API에서 확인
@@ -116,15 +109,10 @@ npm run analyze      # 번들 크기 분석
 
 Vercel Dashboard → Project → Settings → Environment Variables에서 아래 변수를 추가합니다:
 
-| 변수명                                 | 설명                              | 환경                             |
-| -------------------------------------- | --------------------------------- | -------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase 프로젝트 URL             | Production, Preview, Development |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key          | Production, Preview, Development |
-| `NEXT_PUBLIC_SENTRY_DSN`               | Sentry DSN (클라이언트 에러 수집) | Production, Preview              |
-| `SENTRY_DSN`                           | Sentry DSN (서버 에러 수집)       | Production, Preview              |
-| `SENTRY_AUTH_TOKEN`                    | Sentry 소스맵 업로드 토큰         | Production, Preview              |
-| `SENTRY_ORG`                           | Sentry 조직 슬러그                | Production, Preview              |
-| `SENTRY_PROJECT`                       | Sentry 프로젝트 슬러그            | Production, Preview              |
+| 변수명                                 | 설명                     | 환경                             |
+| -------------------------------------- | ------------------------ | -------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase 프로젝트 URL    | Production, Preview, Development |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key | Production, Preview, Development |
 
 > `VERCEL_URL`은 Vercel이 자동으로 설정하는 변수로 별도 설정이 필요하지 않습니다.
 
@@ -161,13 +149,6 @@ https://*-your-vercel-team.vercel.app/auth/callback
 - [ ] 기록/월별 통계 조회
 
 ## 모니터링
-
-### Sentry 에러 모니터링
-
-[Sentry Dashboard](https://sentry.io)에서 클라이언트/서버 에러를 실시간으로 확인할 수 있습니다.
-
-- Source Maps 업로드로 프로덕션 스택트레이스 해독 가능
-- `SENTRY_AUTH_TOKEN` 환경변수 설정 시 빌드 시점에 자동 업로드
 
 ### Vercel Analytics
 
