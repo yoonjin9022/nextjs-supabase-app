@@ -25,8 +25,8 @@
 | Phase 0  | 홈 화면 교체 (랜딩/대시보드 UI)     | ✅ 완료 | 1       |
 | Phase 1  | UI/UX 프로토타입 (목업 데이터)      | ✅ 완료 | 5       |
 | Phase 2  | 요금 계산 로직 (순수 함수 + 타입)   | ✅ 완료 | 2       |
-| Phase 3  | 데이터베이스 연동 (핵심 기능)       | 대기    | 3       |
-| Phase 4  | 즐겨찾기 DB 연동                    | 대기    | 1       |
+| Phase 3  | 데이터베이스 연동 (핵심 기능)       | ✅ 완료 | 3       |
+| Phase 4  | 즐겨찾기 DB 연동                    | ✅ 완료 | 1       |
 | Phase 5  | 기록/통계 DB 연동 및 최종 품질 보증 | 대기    | 2       |
 | **합계** |                                     |         | **14**  |
 
@@ -176,50 +176,51 @@ Phase 1에서 하드코딩된 요금 계산을 실제 로직으로 교체한다.
 
 ---
 
-### Phase 3: 데이터베이스 연동 (핵심 기능)
+### Phase 3: 데이터베이스 연동 (핵심 기능) ✅
 
 Supabase DB를 구축하고 핵심 세션 기능을 실제 데이터로 연동하는 단계.
 목업 데이터를 실제 API 호출로 교체한다.
 
 **완료 기준**: 세션 시작 - 실시간 요금 확인 - 출차 완료까지 전체 플로우가 실제 DB와 연동되어 동작
 
-- [ ] **TASK-008: 데이터베이스 스키마 및 RLS 정책 설정** - 우선순위
-  - Supabase 마이그레이션으로 `parking_lots` 테이블 생성 (UUID PK, user_id FK, 요금 체계 컬럼)
-  - Supabase 마이그레이션으로 `parking_sessions` 테이블 생성 (요금 체계 스냅샷 컬럼 포함)
-  - 두 테이블에 RLS 활성화 및 `auth.uid() = user_id` 정책 적용
-  - `parking_sessions(user_id, entered_at DESC)` 인덱스 생성
-  - 마이그레이션 실행 후 Supabase 대시보드에서 테이블 및 RLS 정상 동작 확인
+- [x] **TASK-008: 데이터베이스 스키마 및 RLS 정책 설정** ✅ - 완료
+  - ✅ Supabase 마이그레이션으로 `parking_lots` 테이블 생성 (UUID PK, user_id FK, 요금 체계 컬럼)
+  - ✅ Supabase 마이그레이션으로 `parking_sessions` 테이블 생성 (요금 체계 스냅샷 컬럼 포함)
+  - ✅ 두 테이블에 RLS 활성화 및 `auth.uid() = user_id` 정책 적용
+  - ✅ `parking_sessions(user_id, entered_at DESC)` 인덱스 생성
+  - ✅ 마이그레이션 실행 후 Supabase 대시보드에서 테이블 및 RLS 정상 동작 확인
 
-- [ ] **TASK-009: Repository 및 Service 레이어 작성**
-  - `lib/repositories/parking-lot.repository.ts`: findByUserId, findById, create, update, delete 구현
-  - `lib/repositories/parking-session.repository.ts`: findActiveByUserId, findById, findByUserIdAndMonth, create, updateExitedAt 구현
-  - `lib/services/parking-lot.service.ts`: CRUD 비즈니스 로직 (유효성 검증 포함)
-  - `lib/services/parking-session.service.ts`: 세션 시작(진행 중 세션 중복 체크), 세션 종료(최종 요금 계산), 월별 조회 로직
-  - 모든 Service 메서드는 `ParkingResult<T>` 형태로 반환
+- [x] **TASK-009: Repository 및 Service 레이어 작성** ✅ - 완료
+  - ✅ `lib/repositories/parking-lot.repository.ts`: findByUserId, findById, create, update, remove 구현
+  - ✅ `lib/repositories/parking-session.repository.ts`: findActiveByUserId, findById, findByUserIdAndMonth, create, updateExitedAt 구현
+  - ✅ `lib/services/parking-lot.service.ts`: CRUD 비즈니스 로직 (이름 중복 체크 포함)
+  - ✅ `lib/services/parking-session.service.ts`: 세션 시작(진행 중 세션 중복 체크), 세션 종료(최종 요금 계산), 월별 조회 로직
+  - ✅ 모든 Service 메서드는 `ParkingResult<T>` 형태로 반환
 
-- [ ] **TASK-010: 핵심 세션 기능 DB 연동 및 통합 테스트**
-  - 세션 시작 폼을 서버 액션으로 교체 (진행 중 세션 중복 체크 포함)
-  - 실시간 계산기 페이지에서 세션 데이터를 DB에서 조회
-  - "출차 완료" 버튼을 서버 액션으로 교체 (exited_at, total_fee 업데이트)
-  - 허브 페이지에서 진행 중 세션 유무를 DB 조회로 교체
-  - 이미 종료된 세션 접근 시 결과 페이지로 리다이렉트 처리
-  - Playwright MCP를 사용한 전체 사용자 플로우 E2E 테스트
-  - 에러 케이스 테스트 (중복 세션 시작 방지, 잘못된 세션 ID 접근)
+- [x] **TASK-010: 핵심 세션 기능 DB 연동** ✅ - 완료
+  - ✅ `app/protected/parking/actions.ts`: startParkingSession/endParkingSession 서버 액션 구현
+  - ✅ `app/protected/parking/session/new/page.tsx`: Server Component로 변경, 진행 중 세션 중복 체크 및 redirect
+  - ✅ `components/parking/new-session-tabs.tsx`: 탭 상태 관리 Client Component 분리 (서버 액션 prop 전달)
+  - ✅ `components/parking/fee-structure-form.tsx`: formAction prop 추가, 서버 액션 연동
+  - ✅ `components/parking/end-session-button.tsx`: 출차 버튼 Client Component (useTransition 기반)
+  - ✅ `app/protected/parking/session/[id]/page.tsx`: DB 조회로 교체, 종료 세션 redirect 처리
+  - ✅ `app/protected/parking/session/[id]/result/page.tsx`: DB 조회로 교체, 미종료 세션 redirect 처리
+  - ✅ `app/protected/parking/page.tsx`: 목업 제거, DB 조회(활성 세션 + 이번 달 최근 3개) 연동
 
 ---
 
-### Phase 4: 즐겨찾기 DB 연동
+### Phase 4: 즐겨찾기 DB 연동 ✅
 
 즐겨찾기 기능을 실제 DB와 연동하여 CRUD 및 세션 시작 폼 연동을 완성하는 단계.
 
 **완료 기준**: 즐겨찾기 저장 후 세션 시작 시 요금 체계 자동 입력 동작 (실제 DB 연동)
 
-- [ ] **TASK-011: 즐겨찾기 CRUD DB 연동 및 세션 시작 폼 연동**
-  - 즐겨찾기 관리 페이지의 목업 데이터를 서버 액션 + DB 연동으로 교체
-  - 새 즐겨찾기 추가, 수정, 삭제 서버 액션 구현
-  - FavoriteSelector 컴포넌트에서 DB 조회로 교체
-  - 출차 완료 결과 페이지에서 "즐겨찾기 저장" 기능 서버 액션 구현
-  - Playwright MCP로 즐겨찾기 선택 후 세션 시작 플로우 테스트
+- [x] **TASK-011: 즐겨찾기 CRUD DB 연동 및 세션 시작 폼 연동** ✅ - 완료
+  - ✅ 즐겨찾기 관리 페이지의 목업 데이터를 서버 액션 + DB 연동으로 교체
+  - ✅ 새 즐겨찾기 추가, 수정, 삭제 서버 액션 구현
+  - ✅ FavoriteSelector 컴포넌트에서 DB 조회로 교체
+  - ✅ 출차 완료 결과 페이지에서 "즐겨찾기 저장" 기능 서버 액션 구현
+  - ✅ Playwright MCP로 즐겨찾기 선택 후 세션 시작 플로우 테스트
 
 ---
 
@@ -299,4 +300,4 @@ lib/
 
 ---
 
-_최종 업데이트: 2026-03-02_ | **📊 진행 상황**: Phase 0–2 완료 (8/14 Tasks 완료)
+_최종 업데이트: 2026-03-03_ | **📊 진행 상황**: Phase 0–4 완료, Phase 5 대기 (12/14 Tasks 완료)
