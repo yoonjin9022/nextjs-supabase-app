@@ -1,5 +1,6 @@
 import './globals.css'
 
+import { Analytics } from '@vercel/analytics/react'
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
@@ -59,8 +60,10 @@ export default function RootLayout({
           {children}
           {/* offset.bottom: 탭바 높이(64px) + 여백(8px) */}
           <Toaster richColors position="bottom-center" offset={{ bottom: 72 }} />
-          {/* Web Vitals 수집 (CLS, FCP, INP, LCP, TTFB) */}
+          {/* Web Vitals 수집 (개발 환경 콘솔 로깅) */}
           <WebVitals />
+          {/* Vercel Analytics: 페이지뷰 및 Web Vitals 자동 수집 */}
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
