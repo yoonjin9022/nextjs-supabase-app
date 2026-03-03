@@ -48,3 +48,84 @@ export interface ParkingResult<T> {
   data: T | null
   error: string | null
 }
+
+// 세션 시작 결과 타입
+// 이미 활성 세션이 있는 경우 activeSessionId 필드에 기존 세션 ID를 담아 반환합니다.
+export interface StartSessionResult extends ParkingResult<ParkingSession> {
+  activeSessionId?: string
+}
+
+// ─── DB Entity 타입 (DB 컬럼과 1:1 대응) ───
+
+// parking_lots 테이블 행 타입
+export interface ParkingLot {
+  id: string
+  user_id: string
+  name: string
+  base_duration: number
+  base_fee: number
+  unit_duration: number
+  unit_fee: number
+  max_daily_fee: number | null
+  created_at: string
+  updated_at: string
+}
+
+// parking_sessions 테이블 행 타입
+export interface ParkingSession {
+  id: string
+  user_id: string
+  parking_lot_name: string | null
+  base_duration: number
+  base_fee: number
+  unit_duration: number
+  unit_fee: number
+  max_daily_fee: number | null
+  budget: number | null
+  entered_at: string
+  exited_at: string | null
+  total_fee: number | null
+  created_at: string
+  updated_at: string
+}
+
+// ─── DB DTO 타입 ───
+
+// 즐겨찾기 생성 DTO
+export interface CreateParkingLotDto {
+  name: string
+  base_duration: number
+  base_fee: number
+  unit_duration: number
+  unit_fee: number
+  max_daily_fee?: number | null
+}
+
+// 즐겨찾기 수정 DTO
+export interface UpdateParkingLotDto {
+  name?: string
+  base_duration?: number
+  base_fee?: number
+  unit_duration?: number
+  unit_fee?: number
+  max_daily_fee?: number | null
+}
+
+// 세션 생성 DB 삽입용 DTO (서버 사이드)
+export interface CreateParkingSessionDbDto {
+  user_id: string
+  parking_lot_name?: string | null
+  base_duration: number
+  base_fee: number
+  unit_duration: number
+  unit_fee: number
+  max_daily_fee?: number | null
+  budget?: number | null
+  entered_at: string // ISO 8601 형식 필수 (예: new Date().toISOString())
+}
+
+// 출차 업데이트 DTO
+export interface ExitParkingSessionDto {
+  exited_at: string
+  total_fee: number
+}
