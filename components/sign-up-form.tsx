@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import { translateAuthError } from '@/lib/utils/auth-error'
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const [email, setEmail] = useState('')
@@ -32,7 +33,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -40,9 +41,16 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         },
       })
       if (error) throw error
+
+      // 이미 가입된 이메일인 경우 identities 배열이 비어있음
+      if (data.user?.identities?.length === 0) {
+        setError('이미 가입된 이메일입니다')
+        return
+      }
+
       router.push('/auth/sign-up-success')
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : '오류가 발생했습니다')
+      setError(error instanceof Error ? translateAuthError(error.message) : '오류가 발생했습니다')
     } finally {
       setIsLoading(false)
     }

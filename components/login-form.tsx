@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import { translateAuthError } from '@/lib/utils/auth-error'
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const [email, setEmail] = useState('')
@@ -33,7 +34,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       if (error) throw error
       router.push('/protected')
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : '오류가 발생했습니다')
+      setError(error instanceof Error ? translateAuthError(error.message) : '오류가 발생했습니다')
     } finally {
       setIsLoading(false)
     }
