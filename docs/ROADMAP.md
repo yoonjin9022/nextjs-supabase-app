@@ -29,7 +29,7 @@
 | Phase 4  | 즐겨찾기 DB 연동                    | ✅ 완료 | 1       |
 | Phase 5  | 기록/통계 DB 연동 및 최종 품질 보증 | ✅ 완료 | 2       |
 | Phase 6  | 성능 최적화                         | ⏳ 예정 | 2       |
-| Phase 7  | SEO 및 접근성                       | ⏳ 예정 | 1       |
+| Phase 7  | SEO 및 접근성                       | ✅ 완료 | 1       |
 | Phase 8  | 배포 및 모니터링                    | ⏳ 예정 | 2       |
 | **합계** |                                     |         | **19**  |
 
@@ -275,23 +275,23 @@ Web Vitals 지표를 개선하고 사용자 체감 성능을 높이는 단계.
 
 ---
 
-### Phase 7: SEO 및 접근성 ⏳
+### Phase 7: SEO 및 접근성 ✅
 
 검색 엔진 최적화와 웹 접근성 기준을 충족하는 단계.
 모바일 퍼스트 앱으로 소셜 공유 시 프리뷰가 올바르게 표시되어야 한다.
 
 **완료 기준**: Lighthouse SEO / 접근성 점수 각 90점 이상, OG 태그 정상 동작
 
-- [ ] **TASK-016: 메타데이터 및 SEO 설정**
-  - [ ] `app/layout.tsx`: `Metadata` 객체로 title, description, keywords 설정
-  - [ ] 동적 메타데이터: 페이지별 title 템플릿 (`title: { template: '%s | ParkingMeter' }`)
-  - [ ] Open Graph 태그 설정 (og:title, og:description, og:image, og:url)
-  - [ ] Twitter Card 메타태그 설정
-  - [ ] `app/robots.txt` 생성 (`/protected` 경로 비공개 처리)
-  - [ ] `app/sitemap.ts` 생성 (공개 페이지만 포함)
-  - [ ] Favicon 및 Apple Touch Icon 설정 (`app/icon.tsx` 또는 정적 파일)
-  - [ ] 접근성 점검: aria-label, role, tabIndex, 키보드 네비게이션 확인
-  - [ ] 색상 대비 비율 WCAG AA 기준 충족 확인 (특히 BudgetBar 색상)
+- [x] **TASK-016: 메타데이터 및 SEO 설정** ✅ - 완료
+  - ✅ `app/layout.tsx`: `Metadata` 객체로 title, description, keywords 설정
+  - ✅ 동적 메타데이터: 페이지별 title 템플릿 (`title: { template: '%s | ParkingMeter' }`)
+  - ✅ Open Graph 태그 설정 (og:title, og:description, og:url, og:siteName, locale)
+  - ✅ Twitter Card 메타태그 설정
+  - ✅ `app/robots.ts` 생성 (`/protected` 경로 비공개 처리)
+  - ✅ `app/sitemap.ts` 생성 (공개 페이지만 포함)
+  - ✅ Favicon 및 Apple Touch Icon 설정 (`app/icon.tsx`, `app/apple-icon.tsx`)
+  - ✅ 접근성 점검: BottomNav aria-label, aria-current 추가
+  - ✅ 색상 대비 비율 WCAG AA 기준 충족 (BudgetBar green-700/yellow-700/red-600)
 
 ---
 
@@ -371,4 +371,4 @@ lib/
 
 ---
 
-_최종 업데이트: 2026-03-03_ | **📊 진행 상황**: Phase 0–5 완료 (14/19 Tasks 완료), Phase 6–8 예정
+_최종 업데이트: 2026-03-04_ | **📊 진행 상황**: Phase 0–5, 7 완료 (15/19 Tasks 완료), Phase 6, 8 예정

@@ -32,13 +32,18 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-50 flex h-16 w-full max-w-[430px] -translate-x-1/2 items-center border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <nav
+      aria-label="메인 내비게이션"
+      className="bg-background/95 supports-[backdrop-filter]:bg-background/80 fixed bottom-0 left-1/2 z-50 flex h-16 w-full max-w-[430px] -translate-x-1/2 items-center border-t backdrop-blur"
+    >
       {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
         const active = isActive(href, exact)
         return (
           <Link
             key={href}
             href={href}
+            aria-label={label}
+            aria-current={active ? 'page' : undefined}
             className={cn(
               'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-xs transition-colors',
               active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
