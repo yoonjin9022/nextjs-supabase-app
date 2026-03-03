@@ -47,9 +47,9 @@ export async function findByUserIdAndMonth(
   year: number,
   month: number
 ): Promise<ParkingSession[]> {
-  // 해당 월의 시작/종료 ISO 문자열 계산
-  const startDate = new Date(year, month - 1, 1).toISOString()
-  const endDate = new Date(year, month, 1).toISOString()
+  // UTC 기준으로 월 범위 계산 (로컬 타임존 영향 방지)
+  const startDate = new Date(Date.UTC(year, month - 1, 1)).toISOString()
+  const endDate = new Date(Date.UTC(year, month, 1)).toISOString()
 
   const supabase = await createClient()
   const { data, error } = await supabase

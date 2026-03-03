@@ -24,8 +24,13 @@ export default async function HistoryPage({
   // URL 파라미터로 연/월 결정 (기본값: 현재 달)
   const { year: yearParam, month: monthParam } = await searchParams
   const now = new Date()
-  const selectedYear = yearParam ? parseInt(yearParam, 10) : now.getFullYear()
-  const selectedMonth = monthParam ? parseInt(monthParam, 10) : now.getMonth() + 1
+  const rawYear = yearParam ? parseInt(yearParam, 10) : now.getFullYear()
+  const rawMonth = monthParam ? parseInt(monthParam, 10) : now.getMonth() + 1
+  // 비정상 값(NaN, 범위 초과) 방어: 현재 달로 폴백
+  const selectedYear =
+    Number.isInteger(rawYear) && rawYear >= 2020 && rawYear <= 2100 ? rawYear : now.getFullYear()
+  const selectedMonth =
+    Number.isInteger(rawMonth) && rawMonth >= 1 && rawMonth <= 12 ? rawMonth : now.getMonth() + 1
 
   // 해당 월의 세션 목록 조회
   const { data: sessions } = await getSessionsByMonth(userId, selectedYear, selectedMonth)

@@ -7,13 +7,24 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { deleteFavoriteAction, updateFavoriteAction } from '@/app/protected/parking/actions'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { ParkingLot } from '@/lib/types/parking.types'
 
-// 수정 폼 유효성 검증 스키마
+// max_daily_fee: 선택 필드 — 빈 입력은 register의 setValueAs로 undefined 처리
 const updateFavoriteSchema = z.object({
   name: z.string().min(1, '이름을 입력해주세요').max(100, '100자 이하로 입력해주세요'),
   base_duration: z
@@ -26,15 +37,10 @@ const updateFavoriteSchema = z.object({
     .int()
     .min(1, '1분 이상이어야 합니다'),
   unit_fee: z.number({ message: '추가 단위요금을 입력해주세요' }).min(0, '0원 이상이어야 합니다'),
-  max_daily_fee: z
-    .number()
-    .nonnegative()
-    .or(z.nan())
-    .transform((v) => (isNaN(v) ? undefined : v))
-    .optional(),
+  max_daily_fee: z.number().nonnegative('0원 이상이어야 합니다').optional(),
 })
 
-type UpdateFavoriteFormValues = z.output<typeof updateFavoriteSchema>
+type UpdateFavoriteFormValues = z.infer<typeof updateFavoriteSchema>
 
 interface FavoriteCardProps {
   lot: ParkingLot
@@ -54,7 +60,7 @@ export function FavoriteCard({ lot }: FavoriteCardProps) {
     reset,
     formState: { errors },
   } = useForm<UpdateFavoriteFormValues>({
-    resolver: zodResolver(updateFavoriteSchema) as never,
+    resolver: zodResolver(updateFavoriteSchema),
     defaultValues: {
       name: lot.name,
       base_duration: lot.base_duration,
@@ -105,8 +111,8 @@ export function FavoriteCard({ lot }: FavoriteCardProps) {
     setIsEditing(false)
   }
 
-  // 삭제 핸들러
-  const handleDelete = () => {
+  // 삭제 실행 핸들러 (AlertDialog 확인 후 호출)
+  const handleDeleteConfirm = () => {
     setErrorMsg(null)
     startTransition(async () => {
       const result = await deleteFavoriteAction(lot.id)
@@ -196,7 +202,10 @@ export function FavoriteCard({ lot }: FavoriteCardProps) {
                 id={`max_daily_fee-${lot.id}`}
                 type="number"
                 placeholder="없음"
-                {...register('max_daily_fee', { valueAsNumber: true })}
+                {...register('max_daily_fee', {
+                  setValueAs: (v) =>
+                    v === '' || v === null || isNaN(Number(v)) ? undefined : Number(v),
+                })}
               />
               {errors.max_daily_fee && (
                 <p className="text-destructive text-xs">{errors.max_daily_fee.message}</p>
@@ -238,15 +247,38 @@ export function FavoriteCard({ lot }: FavoriteCardProps) {
                 >
                   수정
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive h-8 px-2 text-xs"
-                  onClick={handleDelete}
-                  disabled={isPending}
-                >
-                  {isPending ? '삭제 중...' : '삭제'}
-                </Button>
+
+                {/* 삭제 확인 AlertDialog */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive h-8 px-2 text-xs"
+                      disabled={isPending}
+                    >
+                      {isPending ? '삭제 중...' : '삭제'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>즐겨찾기 삭제</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        &ldquo;{lot.name}&rdquo;을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수
+                        없습니다.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>취소</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={handleDeleteConfirm}
+                      >
+                        삭제
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
 
@@ -264,7 +296,8 @@ export function FavoriteCard({ lot }: FavoriteCardProps) {
                   {lot.unit_duration}분 / {lot.unit_fee.toLocaleString()}원
                 </span>
               </div>
-              {lot.max_daily_fee && (
+              {/* max_daily_fee === 0도 정상 표시되도록 !== null 체크 */}
+              {lot.max_daily_fee !== null && (
                 <div className="text-muted-foreground flex justify-between">
                   <span>일 최대</span>
                   <span>{lot.max_daily_fee.toLocaleString()}원</span>
