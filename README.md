@@ -1,110 +1,185 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# ParkingMeter
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+유료 주차장 이용 시 실시간 누적 요금을 계산하고, 최적의 출차 타이밍을 안내하는 모바일 퍼스트 웹앱.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## 주요 기능
 
-## Features
+- **실시간 요금 계산**: 입차 시간과 요금 체계를 기반으로 현재 누적 요금을 1초마다 갱신
+- **출차 타이밍 비교**: 지금/+5분/+10분/+30분 출차 시 예상 요금을 카드 형태로 비교
+- **예산 관리**: 세션별 예산 설정 및 소진율 Progress Bar 표시
+- **주차 기록 및 통계**: 출차 완료 세션 자동 저장, 월별 통계 제공
+- **즐겨찾기**: 자주 쓰는 주차장 요금 체계를 저장하여 빠르게 불러오기
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## 기술 스택
 
-## Demo
+| 영역        | 기술                               |
+| ----------- | ---------------------------------- |
+| 프레임워크  | Next.js 15 (App Router)            |
+| 언어        | TypeScript 5                       |
+| 스타일      | Tailwind CSS 4                     |
+| UI 컴포넌트 | shadcn/ui                          |
+| 백엔드      | Supabase (PostgreSQL + Auth + RLS) |
+| 폼          | React Hook Form + Zod              |
+| 모니터링    | Sentry + Vercel Analytics          |
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## 아키텍처
 
-## Deploy to Vercel
+```
+app/                          # Next.js App Router 페이지
+  protected/                  # 인증 필요 영역
+    parking/                  # 주차 기능 허브
+      session/[id]/           # 실시간 계산기
+      history/                # 기록 및 통계
+      favorites/              # 즐겨찾기
+  auth/                       # 인증 페이지
 
-Vercel deployment will guide you through creating a Supabase account and project.
+components/
+  parking/                    # 주차 기능 컴포넌트
+  layout/                     # 앱 레이아웃 컴포넌트
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
-
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
-
-## Clone and run locally
-
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
-
-2. Create a Next.js app using the Supabase Starter template npx command
-
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
-
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
-
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
-
-3. Use `cd` to change into the app's directory
-
-   ```bash
-   cd with-supabase-app
-   ```
-
-4. Rename `.env.example` to `.env.local` and update the following:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
+lib/
+  services/                   # 비즈니스 로직 레이어
+  repositories/               # DB 접근 레이어
+  types/                      # TypeScript 타입 정의
+  utils/                      # 순수 함수 유틸리티
+  supabase/                   # Supabase 클라이언트
 ```
 
-> [!NOTE]
-> This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-> Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-> See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+**레이어드 아키텍처:**
 
-Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+```
+Page (app/protected/*/page.tsx)
+  └→ Service (lib/services/*.service.ts)
+       └→ Repository (lib/repositories/*.repository.ts)
+            └→ Supabase Client
+```
 
-5. You can now run the Next.js local development server:
+## 로컬 개발 설정
 
-   ```bash
-   npm run dev
-   ```
+### 1. 저장소 클론
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+```bash
+git clone <repository-url>
+cd nextjs-supabase-app
+npm install
+```
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+### 2. 환경 변수 설정
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+루트에 `.env.local` 파일을 생성하고 아래 값을 설정합니다:
 
-## Feedback and issues
+```bash
+# Supabase 프로젝트 설정 (필수)
+NEXT_PUBLIC_SUPABASE_URL=<Supabase 프로젝트 URL>
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable 또는 anon 키>
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+# Sentry 에러 모니터링 (선택 - 프로덕션 권장)
+NEXT_PUBLIC_SENTRY_DSN=<Sentry 프로젝트 DSN>
+SENTRY_DSN=<Sentry 프로젝트 DSN>
+SENTRY_ORG=<Sentry 조직 슬러그>
+SENTRY_PROJECT=<Sentry 프로젝트 슬러그>
+SENTRY_AUTH_TOKEN=<Sentry 소스맵 업로드 토큰>
+```
 
-## More Supabase examples
+> **Supabase 설정값 확인**: Supabase 대시보드 → Project Settings → API에서 확인
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+### 3. 개발 서버 실행
+
+```bash
+npm run dev
+# http://localhost:3000 에서 확인
+```
+
+## 개발 명령어
+
+```bash
+npm run dev          # 개발 서버 실행
+npm run build        # 프로덕션 빌드
+npm run start        # 프로덕션 서버 실행
+npm run lint         # ESLint 검사
+npm run lint:fix     # ESLint 자동 수정
+npm run format       # Prettier 포맷
+npm run typecheck    # TypeScript 타입 체크
+npm run test         # Vitest 단위 테스트
+npm run analyze      # 번들 크기 분석
+```
+
+## Vercel 배포 가이드
+
+### 1. Vercel 프로젝트 연결
+
+1. [Vercel Dashboard](https://vercel.com/dashboard)에서 **Add New Project** 클릭
+2. GitHub 리포지토리 선택 후 **Import**
+3. Framework Preset: **Next.js** 자동 감지 확인
+
+### 2. 환경 변수 설정
+
+Vercel Dashboard → Project → Settings → Environment Variables에서 아래 변수를 추가합니다:
+
+| 변수명                                 | 설명                              | 환경                             |
+| -------------------------------------- | --------------------------------- | -------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase 프로젝트 URL             | Production, Preview, Development |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key          | Production, Preview, Development |
+| `NEXT_PUBLIC_SENTRY_DSN`               | Sentry DSN (클라이언트 에러 수집) | Production, Preview              |
+| `SENTRY_DSN`                           | Sentry DSN (서버 에러 수집)       | Production, Preview              |
+| `SENTRY_AUTH_TOKEN`                    | Sentry 소스맵 업로드 토큰         | Production, Preview              |
+| `SENTRY_ORG`                           | Sentry 조직 슬러그                | Production, Preview              |
+| `SENTRY_PROJECT`                       | Sentry 프로젝트 슬러그            | Production, Preview              |
+
+> `VERCEL_URL`은 Vercel이 자동으로 설정하는 변수로 별도 설정이 필요하지 않습니다.
+
+### 3. Supabase Auth Redirect URL 설정
+
+Supabase Dashboard → Authentication → URL Configuration에서 아래 항목을 추가합니다:
+
+**Site URL:**
+
+```
+https://your-project.vercel.app
+```
+
+**Redirect URLs:**
+
+```
+https://your-project.vercel.app/auth/confirm
+https://your-project.vercel.app/auth/callback
+https://*-your-vercel-team.vercel.app/auth/confirm
+https://*-your-vercel-team.vercel.app/auth/callback
+```
+
+> Preview 배포용 와일드카드 URL을 추가하면 PR별 Preview 환경에서도 인증이 동작합니다.
+
+### 4. 배포 확인 항목
+
+배포 후 아래 기능을 순서대로 확인합니다:
+
+- [ ] 로그인/회원가입 동작
+- [ ] 주차 세션 시작 (요금 체계 입력 → 계산기 이동)
+- [ ] 실시간 요금 계산 동작
+- [ ] 출차 완료 및 결과 페이지
+- [ ] 즐겨찾기 저장/불러오기
+- [ ] 기록/월별 통계 조회
+
+## 모니터링
+
+### Sentry 에러 모니터링
+
+[Sentry Dashboard](https://sentry.io)에서 클라이언트/서버 에러를 실시간으로 확인할 수 있습니다.
+
+- Source Maps 업로드로 프로덕션 스택트레이스 해독 가능
+- `SENTRY_AUTH_TOKEN` 환경변수 설정 시 빌드 시점에 자동 업로드
+
+### Vercel Analytics
+
+[Vercel Dashboard](https://vercel.com) → Analytics 탭에서 아래 지표를 확인할 수 있습니다:
+
+- 페이지뷰 및 방문자 통계
+- Core Web Vitals (LCP, CLS, INP, TTFB, FCP) 자동 수집
+
+### Lighthouse CI
+
+`.lighthouserc.js`에 기준점이 설정되어 있습니다 (각 카테고리 90점 이상):
+
+```bash
+npx lhci autorun
+```
