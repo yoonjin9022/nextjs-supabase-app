@@ -1,47 +1,19 @@
 import { Card, CardContent } from '@/components/ui/card'
+import type { ParkingSession } from '@/lib/types/parking.types'
+import { formatDuration } from '@/lib/utils/format'
 
-// 목업 세션 데이터
-const MOCK_SESSIONS = [
-  {
-    id: 'session-1',
-    parkingLotName: '강남구 공영주차장',
-    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2일 전
-    durationMinutes: 75,
-    fee: 3500,
-  },
-  {
-    id: 'session-2',
-    parkingLotName: '역삼역 주차장',
-    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5일 전
-    durationMinutes: 120,
-    fee: 5500,
-  },
-  {
-    id: 'session-3',
-    parkingLotName: '강남구 공영주차장',
-    date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), // 8일 전
-    durationMinutes: 45,
-    fee: 2000,
-  },
-]
-
-function formatDuration(minutes: number): string {
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  if (h === 0) return `${m}분`
-  if (m === 0) return `${h}시간`
-  return `${h}시간 ${m}분`
-}
-
-function formatDate(date: Date): string {
+// 날짜를 "M월 D일 (요일)" 형식으로 변환
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr)
   return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
 }
 
 interface SessionListProps {
-  sessions?: typeof MOCK_SESSIONS
+  sessions: ParkingSession[]
 }
 
-export function SessionList({ sessions = MOCK_SESSIONS }: SessionListProps) {
+export function SessionList({ sessions }: SessionListProps) {
+  // 빈 배열인 경우 빈 상태 UI 표시
   if (sessions.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-8 text-center">
@@ -52,22 +24,31 @@ export function SessionList({ sessions = MOCK_SESSIONS }: SessionListProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {sessions.map((session) => (
-        <Card key={session.id}>
-          <CardContent className="flex items-center justify-between p-4">
-            <div className="flex flex-col gap-0.5">
-              <span className="font-medium">{session.parkingLotName}</span>
-              <span className="text-xs text-muted-foreground">{formatDate(session.date)}</span>
-              <span className="text-sm text-muted-foreground">
-                {formatDuration(session.durationMinutes)}
+      {sessions.map((session) => {
+        // entered_at ~ exited_at 경과 시간(ms) 계산
+        const elapsedMs = session.exited_at
+          ? new Date(session.exited_at).getTime() - new Date(session.entered_at).getTime()
+          : 0
+
+        return (
+          <Card key={session.id}>
+            <CardContent className="flex items-center justify-between p-4">
+              <div className="flex flex-col gap-0.5">
+                <span className="font-medium">
+                  {session.parking_lot_name ?? '이름 없는 주차장'}
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {formatDate(session.entered_at)}
+                </span>
+                <span className="text-muted-foreground text-sm">{formatDuration(elapsedMs)}</span>
+              </div>
+              <span className="text-lg font-semibold tabular-nums">
+                {(session.total_fee ?? 0).toLocaleString()}원
               </span>
-            </div>
-            <span className="text-lg font-semibold tabular-nums">
-              {session.fee.toLocaleString()}원
-            </span>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        )
+      })}
     </div>
   )
 }

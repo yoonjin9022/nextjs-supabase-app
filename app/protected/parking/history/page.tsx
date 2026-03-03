@@ -1,67 +1,64 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { useState } from 'react'
-
+import { MonthFilterTabs } from '@/components/parking/month-filter-tabs'
 import { MonthlyStats } from '@/components/parking/monthly-stats'
 import { SessionList } from '@/components/parking/session-list'
-import { Button } from '@/components/ui/button'
+import { getSessionsByMonth } from '@/lib/services/parking-session.service'
+import { createClient } from '@/lib/supabase/server'
 
-function getMonthLabel(date: Date): string {
-  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })
-}
+// 주차 기록 페이지 (Server Component, Next.js 15 async searchParams)
+export default async function HistoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string; month?: string }>
+}) {
+  const supabase = await createClient()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const userId = claimsData?.claims?.sub
 
-export default function HistoryPage() {
+  // 미인증 사용자 리다이렉트
+  if (!userId) {
+    redirect('/auth/login')
+  }
+
+  // URL 파라미터로 연/월 결정 (기본값: 현재 달)
+  const { year: yearParam, month: monthParam } = await searchParams
   const now = new Date()
-  const [selectedMonth, setSelectedMonth] = useState<Date>(now)
+  const selectedYear = yearParam ? parseInt(yearParam, 10) : now.getFullYear()
+  const selectedMonth = monthParam ? parseInt(monthParam, 10) : now.getMonth() + 1
 
-  const prevMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1)
-  const isCurrentMonth =
-    selectedMonth.getFullYear() === now.getFullYear() && selectedMonth.getMonth() === now.getMonth()
+  // 해당 월의 세션 목록 조회
+  const { data: sessions } = await getSessionsByMonth(userId, selectedYear, selectedMonth)
+  const sessionList = sessions ?? []
 
-  const handlePrevMonth = () => {
-    setSelectedMonth(prevMonth)
-  }
-
-  const handleCurrentMonth = () => {
-    setSelectedMonth(new Date(now.getFullYear(), now.getMonth(), 1))
-  }
+  // 서버에서 통계 계산
+  const totalFee = sessionList.reduce((sum, sess) => sum + (sess.total_fee ?? 0), 0)
+  const sessionCount = sessionList.length
+  const averageFee = sessionCount > 0 ? Math.round(totalFee / sessionCount) : 0
 
   return (
     <div className="flex w-full flex-col gap-6 pb-8">
       {/* 헤더 */}
       <div>
         <h1 className="text-xl font-bold">주차 기록</h1>
-        <p className="text-sm text-muted-foreground">월별 주차 기록과 통계를 확인하세요</p>
+        <p className="text-muted-foreground text-sm">월별 주차 기록과 통계를 확인하세요</p>
       </div>
 
-      {/* 월 선택 필터 */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant={!isCurrentMonth ? 'default' : 'outline'}
-          className="h-11"
-          onClick={handlePrevMonth}
-        >
-          {getMonthLabel(prevMonth)}
-        </Button>
-        <Button
-          variant={isCurrentMonth ? 'default' : 'outline'}
-          className="h-11"
-          onClick={handleCurrentMonth}
-        >
-          {getMonthLabel(new Date(now.getFullYear(), now.getMonth(), 1))}
-        </Button>
-      </div>
+      {/* 월 필터 탭 (최근 6개월) */}
+      <MonthFilterTabs selectedYear={selectedYear} selectedMonth={selectedMonth} />
 
-      {/* 현재 선택된 월 표시 */}
-      <p className="text-sm font-medium">{getMonthLabel(selectedMonth)} 통계</p>
+      {/* 선택된 월 표시 */}
+      <p className="text-sm font-medium">
+        {selectedYear}년 {selectedMonth}월 통계
+      </p>
 
-      {/* 월별 통계 */}
-      <MonthlyStats />
+      {/* 월별 통계 카드 */}
+      <MonthlyStats totalFee={totalFee} sessionCount={sessionCount} averageFee={averageFee} />
 
       {/* 세션 목록 */}
       <div className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium text-muted-foreground">세션 목록</h2>
-        <SessionList />
+        <h2 className="text-muted-foreground text-sm font-medium">세션 목록</h2>
+        <SessionList sessions={sessionList} />
       </div>
     </div>
   )
