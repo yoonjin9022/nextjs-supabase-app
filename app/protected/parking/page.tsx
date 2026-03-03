@@ -27,16 +27,12 @@ export default async function ParkingHubPage() {
     redirect('/auth/login')
   }
 
-  // 진행 중인 세션 조회
-  const { data: activeSession } = await getActiveSession(userId)
-
-  // 이번 달 세션 목록 조회 (최근 기록 미리보기, 최대 3개)
+  // 진행 중인 세션 + 이번 달 세션 목록 병렬 조회 (순차 실행 대비 레이턴시 절감)
   const now = new Date()
-  const { data: monthlySessions } = await getSessionsByMonth(
-    userId,
-    now.getFullYear(),
-    now.getMonth() + 1
-  )
+  const [{ data: activeSession }, { data: monthlySessions }] = await Promise.all([
+    getActiveSession(userId),
+    getSessionsByMonth(userId, now.getFullYear(), now.getMonth() + 1),
+  ])
   const recentSessions = (monthlySessions ?? []).slice(0, 3)
 
   // 진행 중 세션의 현재 요금 계산 (실시간 타이머 없이 현재 시각 기준으로 계산)

@@ -1,5 +1,7 @@
 'use client'
 
+import { memo } from 'react'
+
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import type { TimingOption } from '@/lib/types/parking.types'
@@ -9,14 +11,15 @@ interface TimingCardsProps {
 }
 
 // TimingOption 배열을 받아 시점별 요금을 카드로 표시하는 순수 디스플레이 컴포넌트
-export function TimingCards({ options }: TimingCardsProps) {
+// memo로 래핑: options 배열 내용이 바뀔 때만 리렌더링 (요금 경계 통과 시점에만 변경)
+export const TimingCards = memo(function TimingCards({ options }: TimingCardsProps) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {options.map(({ label, offsetMinutes, fee, diff, isSame, isMaxReached }) => (
         <Card key={label} className="relative overflow-hidden">
           <CardContent className="flex flex-col items-center gap-2 p-4">
             {/* 시점 레이블 (지금 / +5분 / +10분 / +30분) */}
-            <span className="text-sm font-medium text-muted-foreground">{label}</span>
+            <span className="text-muted-foreground text-sm font-medium">{label}</span>
 
             {/* 해당 시점 예상 요금 */}
             <span className="text-xl font-bold tabular-nums">{fee.toLocaleString()}원</span>
@@ -40,4 +43,4 @@ export function TimingCards({ options }: TimingCardsProps) {
       ))}
     </div>
   )
-}
+})
