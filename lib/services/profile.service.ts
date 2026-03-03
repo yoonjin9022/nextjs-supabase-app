@@ -1,5 +1,10 @@
 import { findProfileById, updateProfile } from '@/lib/repositories/profile.repository'
-import type { Profile, ProfileResult, UpdateProfileDto } from '@/lib/types/profile.types'
+import type {
+  Profile,
+  ProfileResult,
+  UpdateNicknameDto,
+  UpdateProfileDto,
+} from '@/lib/types/profile.types'
 
 // 프로필 조회 서비스
 export async function getProfile(userId: string): Promise<ProfileResult<Profile>> {
@@ -12,6 +17,32 @@ export async function getProfile(userId: string): Promise<ProfileResult<Profile>
   } catch (err) {
     console.error('[ProfileService] getProfile 오류:', err)
     return { data: null, error: '프로필 조회 중 오류가 발생했습니다.' }
+  }
+}
+
+// 닉네임 수정 서비스 (비즈니스 유효성 검증 포함)
+export async function editNickname(
+  userId: string,
+  dto: UpdateNicknameDto
+): Promise<ProfileResult<Profile>> {
+  try {
+    // 닉네임 유효성: 2~30자, 한글/영문/숫자/언더스코어 허용
+    const nicknameRegex = /^[\w\uAC00-\uD7A3]{2,30}$/u
+    if (!nicknameRegex.test(dto.nickname.trim())) {
+      return {
+        data: null,
+        error: '닉네임은 2~30자의 한글, 영문, 숫자만 사용 가능합니다.',
+      }
+    }
+
+    const data = await updateProfile(userId, { nickname: dto.nickname.trim() })
+    if (!data) {
+      return { data: null, error: '닉네임 수정에 실패했습니다.' }
+    }
+    return { data, error: null }
+  } catch (err) {
+    console.error('[ProfileService] editNickname 오류:', err)
+    return { data: null, error: '닉네임 수정 중 오류가 발생했습니다.' }
   }
 }
 

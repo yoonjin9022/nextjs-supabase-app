@@ -28,7 +28,7 @@ export default async function ProfilePage() {
   return (
     <div className="flex w-full flex-1 flex-col gap-8">
       <h1 className="text-2xl font-bold">프로필 설정</h1>
-      <ProfileForm profile={profile} userId={userId} />
+      <ProfileForm profile={profile} />
       <div className="border-t pt-6">
         <LogoutButton />
       </div>

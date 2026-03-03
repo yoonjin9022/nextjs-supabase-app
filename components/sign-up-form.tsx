@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { translateAuthError } from '@/lib/utils/auth-error'
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+  const [nickname, setNickname] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [repeatPassword, setRepeatPassword] = useState('')
@@ -26,6 +27,12 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     setIsLoading(true)
     setError(null)
 
+    if (nickname.trim().length < 2 || nickname.trim().length > 30) {
+      setError('닉네임은 2~30자로 입력해주세요')
+      setIsLoading(false)
+      return
+    }
+
     if (password !== repeatPassword) {
       setError('비밀번호가 일치하지 않습니다')
       setIsLoading(false)
@@ -38,6 +45,9 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/protected`,
+          data: {
+            nickname: nickname.trim(),
+          },
         },
       })
       if (error) throw error
@@ -66,6 +76,18 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="nickname">닉네임</Label>
+                <Input
+                  id="nickname"
+                  type="text"
+                  placeholder="2~30자 (한글/영문/숫자)"
+                  required
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  maxLength={30}
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">이메일</Label>
                 <Input

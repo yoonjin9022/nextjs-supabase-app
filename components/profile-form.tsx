@@ -1,107 +1,90 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createClient } from '@/lib/supabase/client'
-import type { Profile, UpdateProfileDto } from '@/lib/types/profile.types'
+import { updateNicknameAction } from '@/lib/actions/profile.actions'
+import type { Profile } from '@/lib/types/profile.types'
 
 interface ProfileFormProps {
   profile: Profile
-  userId: string
 }
 
-export function ProfileForm({ profile, userId }: ProfileFormProps) {
-  const [formData, setFormData] = useState<UpdateProfileDto>({
-    username: profile.username,
-    full_name: profile.full_name,
-    avatar_url: profile.avatar_url,
-    website: profile.website,
-    bio: profile.bio,
-  })
+export function ProfileForm({ profile }: ProfileFormProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [nickname, setNickname] = useState(profile.nickname ?? '')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const router = useRouter()
+
+  const handleCancel = () => {
+    setNickname(profile.nickname ?? '')
+    setError(null)
+    setIsEditing(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
-    setSuccessMessage(null)
 
-    try {
-      const supabase = createClient()
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update(formData)
-        .eq('id', userId)
+    const result = await updateNicknameAction(nickname)
 
-      if (updateError) throw new Error(updateError.message)
-
-      setSuccessMessage('프로필이 성공적으로 저장되었습니다.')
-      router.refresh()
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : '오류가 발생했습니다.')
-    } finally {
+    if (result.error) {
+      setError(result.error)
       setIsLoading(false)
+      return
     }
+
+    setIsEditing(false)
+    setIsLoading(false)
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>프로필 수정</CardTitle>
+        <CardTitle>프로필</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="grid gap-2">
-            <Label htmlFor="username">사용자명</Label>
-            <Input
-              id="username"
-              value={formData.username ?? ''}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value || null })}
-              placeholder="영문, 숫자, 언더스코어 (3~20자)"
-            />
+        {!isEditing ? (
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-1">
+              <Label className="text-muted-foreground text-sm">닉네임</Label>
+              <p className="text-base font-medium">{profile.nickname ?? '닉네임을 설정해주세요'}</p>
+            </div>
+            <Button type="button" variant="outline" onClick={() => setIsEditing(true)}>
+              편집
+            </Button>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="full_name">이름</Label>
-            <Input
-              id="full_name"
-              value={formData.full_name ?? ''}
-              onChange={(e) => setFormData({ ...formData, full_name: e.target.value || null })}
-              placeholder="홍길동"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="website">웹사이트</Label>
-            <Input
-              id="website"
-              type="url"
-              value={formData.website ?? ''}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value || null })}
-              placeholder="https://example.com"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="bio">소개</Label>
-            <Input
-              id="bio"
-              value={formData.bio ?? ''}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value || null })}
-              placeholder="자기소개를 입력하세요"
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          {successMessage && <p className="text-sm text-green-600">{successMessage}</p>}
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? '저장 중...' : '저장'}
-          </Button>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="nickname">닉네임</Label>
+              <Input
+                id="nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="2~30자 (한글/영문/숫자)"
+                maxLength={30}
+                autoFocus
+              />
+              <p className="text-muted-foreground text-xs">
+                한글, 영문, 숫자 2~30자로 입력해주세요
+              </p>
+            </div>
+            {error && <p className="text-destructive text-sm">{error}</p>}
+            <div className="flex gap-2">
+              <Button type="submit" disabled={isLoading} className="flex-1">
+                {isLoading ? '저장 중...' : '저장'}
+              </Button>
+              <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
+                취소
+              </Button>
+            </div>
+          </form>
+        )}
       </CardContent>
     </Card>
   )

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { getActiveSession, getSessionsByMonth } from '@/lib/services/parking-session.service'
+import { getProfile } from '@/lib/services/profile.service'
 import { createClient } from '@/lib/supabase/server'
 
 function formatTimeAgo(date: Date): string {
@@ -27,16 +28,17 @@ export default async function ProtectedPage() {
 
   const userId = data.claims.sub as string
 
-  // 이메일 @ 앞부분으로 환영 메시지 구성
-  const email = data.claims.email as string | undefined
-  const displayName = email ? email.split('@')[0] : '사용자'
-
-  // 진행 중인 세션 및 이번 달 통계 조회
+  // 진행 중인 세션, 이번 달 통계, 프로필 조회
   const now = new Date()
-  const [{ data: activeSession }, { data: sessions }] = await Promise.all([
+  const [{ data: activeSession }, { data: sessions }, { data: profile }] = await Promise.all([
     getActiveSession(userId),
     getSessionsByMonth(userId, now.getFullYear(), now.getMonth() + 1),
+    getProfile(userId),
   ])
+
+  // 닉네임 우선, 없으면 이메일 앞부분
+  const email = data.claims.email as string | undefined
+  const displayName = profile?.nickname ?? (email ? email.split('@')[0] : '사용자')
 
   const sessionList = sessions ?? []
   const totalFee = sessionList.reduce((sum, sess) => sum + (sess.total_fee ?? 0), 0)
